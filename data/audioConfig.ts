@@ -17,9 +17,9 @@ export const storyAudioConfig = {
   loop: true,
 
   /** volume through chapters 1–4 */
-  baseVolume: 0.1,
+  baseVolume: 0.13,
   /** slightly warmer through chapter 5 (the graduation arc) */
-  chapterFiveVolume: 0.15,
+  chapterFiveVolume: 0.24,
 
   /** chapter 6 fades the music out and reaches silence on this line */
   fadeToZeroLine: "the story was real.",

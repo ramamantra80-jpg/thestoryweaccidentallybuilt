@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { MusicNote } from "../story/Doodles";
-import { useStoryAudio } from "./AudioContext";
+import { useStoryAudio, AUDIO_STORAGE } from "./AudioContext";
 import { storyAudioConfig as cfg } from "@/data/audioConfig";
 
 // A quiet invitation, not a feature: "before you continue, here's the
@@ -10,12 +11,26 @@ import { storyAudioConfig as cfg } from "@/data/audioConfig";
 export default function MusicChoiceScreen() {
   const audio = useStoryAudio();
 
+  // already chosen on a previous visit? render nothing — the shell glides past
+  const [alreadyChosen] = useState(() => {
+    try {
+      return (
+        typeof window !== "undefined" &&
+        localStorage.getItem(AUDIO_STORAGE.choice) !== null
+      );
+    } catch {
+      return false;
+    }
+  });
+
   const pick = (withMusic: boolean) => (e: React.MouseEvent) => {
     e.stopPropagation(); // don't let the tap also flip a page
     if (withMusic) audio.chooseMusic();
     else audio.chooseSilent();
     audio.next();
   };
+
+  if (alreadyChosen) return null;
 
   return (
     <div className="grow min-h-full w-full flex flex-col items-center justify-center px-8 text-center bg-bg">

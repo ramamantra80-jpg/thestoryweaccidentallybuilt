@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import PageTransition from "./PageTransition";
-import { AudioCtx, type StoryAudio } from "./audio/AudioContext";
+import { AudioCtx, AUDIO_STORAGE, type StoryAudio } from "./audio/AudioContext";
 import MusicChoiceScreen from "./audio/MusicChoiceScreen";
 import FloatingMusicControl from "./audio/FloatingMusicControl";
 import NightSky from "./story/NightSky";
@@ -121,6 +121,24 @@ function volumeForIndex(i: number): number {
   return storyAudioConfig.baseVolume; // chapters 1–4 (and everything else)
 }
 
+// the music-choice screen's position, so we can auto-skip it once chosen
+const MUSIC_INDEX = SCENES.findIndex((s) => s.C === MusicChoiceScreen);
+
+function lsGet(key: string): string | null {
+  try {
+    return typeof window !== "undefined" ? localStorage.getItem(key) : null;
+  } catch {
+    return null;
+  }
+}
+function lsSet(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // private mode etc. — fine, we just won't remember
+  }
+}
+
 export default function StoryShell() {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
@@ -187,14 +205,41 @@ export default function StoryShell() {
 
   const chooseMusic = useCallback(() => {
     setAudioChoice("music");
+    lsSet(AUDIO_STORAGE.choice, "music");
     const a = audioRef.current;
     if (a) {
       a.volume = 0;
       a.play().catch(() => {}); // inside a click → autoplay is allowed
     }
   }, []);
-  const chooseSilent = useCallback(() => setAudioChoice("silent"), []);
-  const toggleMute = useCallback(() => setMuted((m) => !m), []);
+  const chooseSilent = useCallback(() => {
+    setAudioChoice("silent");
+    lsSet(AUDIO_STORAGE.choice, "silent");
+  }, []);
+  const toggleMute = useCallback(() => {
+    setMuted((m) => {
+      const next = !m;
+      lsSet(AUDIO_STORAGE.muted, next ? "1" : "0");
+      return next;
+    });
+  }, []);
+
+  // restore the saved choice / mute on mount so a refresh doesn't re-ask
+  useEffect(() => {
+    const c = lsGet(AUDIO_STORAGE.choice);
+    if (c === "music" || c === "silent") setAudioChoice(c);
+    if (lsGet(AUDIO_STORAGE.muted) === "1") setMuted(true);
+  }, []);
+
+  // once a choice is remembered, glide past the music screen (in whatever
+  // direction the reader is moving) instead of asking again
+  useEffect(() => {
+    if (index === MUSIC_INDEX && audioChoice !== null) {
+      if (direction === -1) goPrev();
+      else goNext();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index]);
 
   // ease the volume toward the page's target whenever the page or mute changes
   useEffect(() => {

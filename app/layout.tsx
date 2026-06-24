@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Playfair_Display, Crimson_Text, Caveat } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const geist = Geist({
@@ -48,7 +49,10 @@ export default function RootLayout({
       lang="en"
       className={`${geist.variable} ${playfair.variable} ${crimson.variable} ${caveat.variable} h-full`}
     >
-      <body className="h-full overflow-hidden">{children}</body>
+      <body className="h-full overflow-hidden">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }

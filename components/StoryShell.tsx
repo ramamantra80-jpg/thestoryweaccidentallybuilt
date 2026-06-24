@@ -8,6 +8,7 @@ import NightSky from "./story/NightSky";
 import DaySky from "./story/DaySky";
 import GoldenSky from "./story/GoldenSky";
 import SchoolSky from "./story/SchoolSky";
+import ClearSky from "./story/ClearSky";
 import IntroMessage from "./scenes/IntroMessage";
 import CoverScene from "./scenes/CoverScene";
 import TutorialScene from "./scenes/TutorialScene";

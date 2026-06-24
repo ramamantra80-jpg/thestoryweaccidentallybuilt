@@ -20,7 +20,7 @@ const pop = (delay: number) => ({
 
 export default function Scene1B() {
   return (
-    <div className="flex items-center justify-center w-full h-full px-5 py-8 bg-bg">
+    <div className="flex items-center justify-center w-full h-full px-5 py-8">
       <motion.div
         className="relative w-full max-w-md"
         initial={{ opacity: 0, y: 18, scale: 0.98 }}

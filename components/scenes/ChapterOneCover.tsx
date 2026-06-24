@@ -5,7 +5,7 @@ import Stickman from "../story/Stickman";
 
 export default function ChapterOneCover() {
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full px-8 bg-bg text-center">
+    <div className="flex flex-col items-center justify-center w-full h-full px-8 text-center">
       {/* taped chapter tag */}
       <motion.div
         className="mb-5 rotate-[-2deg]"

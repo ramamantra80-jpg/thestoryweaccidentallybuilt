@@ -491,7 +491,7 @@ export const chapterSix: FinalChapter = {
     // screen 4
     ["the story was real."],
     // screen 5 (closes with the two stick figures)
-    ["thanks for reading this chapter with me.", "hope it made you smile"],
+    ["thanks for reading this chapter with me.","and thank you for being part of the story.", "hope it made you smile"],
   ],
   replayLabel: "read again",
 
@@ -502,7 +502,7 @@ export const chapterSix: FinalChapter = {
     titleDelay: 0.4,
     titleDuration: 1.0,
     firstLineDelay: 0.5,
-    lineGap: 1,
+    lineGap: 1.2,
     lineDuration: 1.0,
     endingPause: 0.4,
     endingDuration: 1.2,

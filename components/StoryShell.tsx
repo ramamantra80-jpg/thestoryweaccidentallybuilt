@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import PageTransition from "./PageTransition";
+import { AudioCtx, type StoryAudio } from "./audio/AudioContext";
+import MusicChoiceScreen from "./audio/MusicChoiceScreen";
+import FloatingMusicControl from "./audio/FloatingMusicControl";
 import NightSky from "./story/NightSky";
 import DaySky from "./story/DaySky";
 import GoldenSky from "./story/GoldenSky";
@@ -36,6 +39,7 @@ import PaperPlaneInterstitial from "./scenes/PaperPlaneInterstitial";
 import Scene5D from "./scenes/Scene5D";
 import { ChapterSixTitle, makeSection } from "./scenes/ChapterSixFinale";
 import { chapterSix } from "@/data/storyContent";
+import { storyAudioConfig } from "@/data/audioConfig";
 import type { ComponentType } from "react";
 
 /** a chapter can run on a shared full-screen backdrop behind its slides */
@@ -51,6 +55,8 @@ const SCENES: SceneDef[] = [
   { C: IntroMessage },
   { C: CoverScene },
   { C: TutorialScene },
+  // —— the soundtrack invitation ——
+  { C: MusicChoiceScreen },
   // —— chapter one: the stranger (clear light-blue sky) ——
   { C: ChapterOneCover, backdrop: "clear" },
   { C: Scene1A, backdrop: "clear" },
@@ -89,6 +95,31 @@ const SCENES: SceneDef[] = [
     backdrop: "blank" as Backdrop,
   })),
 ];
+
+// ── soundtrack volume map ──────────────────────────────────────
+const BLANK_START = SCENES.findIndex((s) => s.backdrop === "blank");
+// how far into chapter six the music should reach silence — keyed to the
+// "the story was real." line so it stays correct if you reorder sections
+const FADE_ZERO_OFFSET = (() => {
+  const target = storyAudioConfig.fadeToZeroLine.trim().toLowerCase();
+  const si = chapterSix.sections.findIndex((sec) =>
+    sec.some((line) => line.trim().toLowerCase() === target)
+  );
+  return si >= 0 ? si + 1 : chapterSix.sections.length; // +1 for the title screen
+})();
+
+/** the target background volume for a given scene index */
+function volumeForIndex(i: number): number {
+  const bd = SCENES[i]?.backdrop;
+  if (bd === "golden") return storyAudioConfig.chapterFiveVolume; // chapter 5
+  if (bd === "blank") {
+    // chapter 6 — ease down to silence by the "story was real" line
+    if (FADE_ZERO_OFFSET <= 0) return 0;
+    const p = i - BLANK_START;
+    return storyAudioConfig.baseVolume * Math.max(0, 1 - p / FADE_ZERO_OFFSET);
+  }
+  return storyAudioConfig.baseVolume; // chapters 1–4 (and everything else)
+}
 
 export default function StoryShell() {
   const [index, setIndex] = useState(0);
@@ -146,6 +177,66 @@ export default function StoryShell() {
     [goPrev, goNext]
   );
 
+  // ── soundtrack ─────────────────────────────────────────────
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const rampRef = useRef<number | null>(null);
+  const [audioChoice, setAudioChoice] = useState<"music" | "silent" | null>(
+    null
+  );
+  const [muted, setMuted] = useState(false);
+
+  const chooseMusic = useCallback(() => {
+    setAudioChoice("music");
+    const a = audioRef.current;
+    if (a) {
+      a.volume = 0;
+      a.play().catch(() => {}); // inside a click → autoplay is allowed
+    }
+  }, []);
+  const chooseSilent = useCallback(() => setAudioChoice("silent"), []);
+  const toggleMute = useCallback(() => setMuted((m) => !m), []);
+
+  // ease the volume toward the page's target whenever the page or mute changes
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a || audioChoice !== "music") return;
+    const base = volumeForIndex(index);
+    const target = muted ? 0 : base;
+    if (base > 0.0005 && a.paused) a.play().catch(() => {});
+
+    if (rampRef.current) window.clearInterval(rampRef.current);
+    const from = a.volume;
+    const steps = Math.max(1, Math.round(storyAudioConfig.rampMs / 50));
+    let step = 0;
+    rampRef.current = window.setInterval(() => {
+      step += 1;
+      const t = Math.min(1, step / steps);
+      a.volume = Math.max(0, Math.min(1, from + (target - from) * t));
+      if (t >= 1) {
+        if (rampRef.current) window.clearInterval(rampRef.current);
+        rampRef.current = null;
+        if (base <= 0.0005) a.pause(); // chapter 6 silence → stop the audio
+      }
+    }, 50);
+
+    return () => {
+      if (rampRef.current) window.clearInterval(rampRef.current);
+      rampRef.current = null;
+    };
+  }, [index, audioChoice, muted]);
+
+  const audioValue = useMemo<StoryAudio>(
+    () => ({
+      choice: audioChoice,
+      muted,
+      chooseMusic,
+      chooseSilent,
+      toggleMute,
+      next: goNext,
+    }),
+    [audioChoice, muted, chooseMusic, chooseSilent, toggleMute, goNext]
+  );
+
   const Scene = SCENES[index].C;
   const backdrop = SCENES[index].backdrop;
   const scrollThumb =
@@ -165,13 +256,23 @@ export default function StoryShell() {
   const hintColor = backdrop === "night" ? "#e8dcc2" : "#2c1f14";
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-bg">
-      <motion.div
-        className="absolute inset-0"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
+    <AudioCtx.Provider value={audioValue}>
+      {storyAudioConfig.enabled && (
+        // one shared audio element — lives here so it never remounts between pages
+        <audio
+          ref={audioRef}
+          src={storyAudioConfig.src}
+          loop={storyAudioConfig.loop}
+          preload="auto"
+        />
+      )}
+      <div className="relative w-full h-full overflow-hidden bg-bg">
+        <motion.div
+          className="absolute inset-0"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
             <div className="relative w-full h-full group">
               {/* one shared backdrop per chapter, fixed behind the scroll so the
                   sky stays put while the card scrolls. keying by backdrop type
@@ -247,8 +348,14 @@ export default function StoryShell() {
                   />
                 ))}
               </div>
+
+              {/* floating mute control — only with music, hidden on chapter six */}
+              {audioChoice === "music" && backdrop !== "blank" && (
+                <FloatingMusicControl />
+              )}
             </div>
-      </motion.div>
-    </div>
+        </motion.div>
+      </div>
+    </AudioCtx.Provider>
   );
 }

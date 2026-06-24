@@ -85,22 +85,22 @@ export default function Scene1B() {
             the weirdness appeared. and somewhere along the way she got more
             unpredictable.
           </motion.p>
-        </NotebookPaper>
 
-        {/* the contrast — the key line */}
-        <motion.div
-          className="absolute -bottom-7 right-0"
-          initial={{ opacity: 0, y: 12, rotate: 4 }}
-          animate={{ opacity: 1, y: 0, rotate: 2 }}
-          transition={{ delay: 5.4, duration: 0.6 }}
-        >
-          <StickyNote color="pink" rotate={2} withTape tapeColor="pink" className="max-w-[230px]">
-            <p className="font-handwrite text-ink-soft text-sm leading-snug">
-              i thought she was this serious, quiet girl. turns out one of the
-              most unpredictable people i know 🤣
-            </p>
-          </StickyNote>
-        </motion.div>
+          {/* the contrast — in-flow so it never covers the text on mobile */}
+          <motion.div
+            className="mt-5 flex justify-end"
+            initial={{ opacity: 0, y: 12, rotate: 4 }}
+            animate={{ opacity: 1, y: 0, rotate: 2 }}
+            transition={{ delay: 5.4, duration: 0.6 }}
+          >
+            <StickyNote color="pink" rotate={2} withTape tapeColor="pink" className="max-w-[230px]">
+              <p className="font-handwrite text-ink-soft text-sm leading-snug">
+                i thought she was this serious, quiet girl. turns out one of the
+                most unpredictable people i know 🤣
+              </p>
+            </StickyNote>
+          </motion.div>
+        </NotebookPaper>
       </motion.div>
     </div>
   );

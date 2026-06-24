@@ -27,7 +27,7 @@ function Cloud({ size, op }: { size: number; op: number }) {
       style={{ opacity: op }}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g fill="#f7ddbd">
+      <g fill="#f6d4ac">
         <ellipse cx="34" cy="38" rx="26" ry="17" />
         <ellipse cx="57" cy="33" rx="22" ry="20" />
         <ellipse cx="72" cy="40" rx="17" ry="13" />
@@ -44,7 +44,7 @@ export default function SchoolSky({ className = "" }: { className?: string }) {
       className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}
       style={{
         background:
-          "radial-gradient(120% 95% at 50% 28%, #fbf2e2 0%, #f7e8d0 52%, #f1dabb 100%)",
+          "radial-gradient(120% 95% at 50% 28%, #fbeed5 0%, #f8e2c0 50%, #f1d2a4 100%)",
       }}
     >
       {clouds.map((c, i) => (

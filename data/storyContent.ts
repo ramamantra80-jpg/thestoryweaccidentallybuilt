@@ -471,7 +471,7 @@ export interface FinalTiming {
 }
 
 export const chapterSix: FinalChapter = {
-  chapterLabel: "chapter six",
+  chapterLabel: "chapter VI",
   title: "The Blank Canvas",
   subtitle: "the part we don't know yet",
   // each array below is one screen, in order. add / remove / split freely —
@@ -491,7 +491,7 @@ export const chapterSix: FinalChapter = {
     // screen 4
     ["the story was real."],
     // screen 5 (closes with the two stick figures)
-    ["thank you for reading all of this yap.", "hope it made you smile"],
+    ["thanks for reading this chapter with me.", "hope it made you smile"],
   ],
   replayLabel: "read again",
 

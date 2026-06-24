@@ -40,7 +40,7 @@ import { chapterSix } from "@/data/storyContent";
 import type { ComponentType } from "react";
 
 /** a chapter can run on a shared full-screen backdrop behind its slides */
-type Backdrop = "school" | "night" | "day" | "golden" | "blank";
+type Backdrop = "clear" | "school" | "night" | "day" | "golden" | "blank";
 
 interface SceneDef {
   C: ComponentType;
@@ -52,11 +52,11 @@ const SCENES: SceneDef[] = [
   { C: IntroMessage },
   { C: CoverScene },
   { C: TutorialScene },
-  // —— chapter one: the stranger ——
-  { C: ChapterOneCover },
-  { C: Scene1A },
-  { C: Scene1B },
-  { C: Scene1C },
+  // —— chapter one: the stranger (clear light-blue sky) ——
+  { C: ChapterOneCover, backdrop: "clear" },
+  { C: Scene1A, backdrop: "clear" },
+  { C: Scene1B, backdrop: "clear" },
+  { C: Scene1C, backdrop: "clear" },
   // —— chapter two: the school saga (warm daylight) ——
   { C: ChapterTwoCover, backdrop: "school" },
   { C: Scene2A, backdrop: "school" },
@@ -160,9 +160,11 @@ export default function StoryShell() {
           ? "#d4b07a"
           : backdrop === "school"
             ? "#d8b88c"
-            : backdrop === "blank"
-              ? "#dcdcdc"
-              : "#d8c8b0";
+            : backdrop === "clear"
+              ? "#b9c8d2"
+              : backdrop === "blank"
+                ? "#dcdcdc"
+                : "#d8c8b0";
   const hintColor = backdrop === "night" ? "#e8dcc2" : "#2c1f14";
 
   return (
@@ -207,6 +209,8 @@ export default function StoryShell() {
                       <GoldenSky />
                     ) : backdrop === "school" ? (
                       <SchoolSky />
+                    ) : backdrop === "clear" ? (
+                      <ClearSky />
                     ) : (
                       <div className="absolute inset-0 bg-white" />
                     )}

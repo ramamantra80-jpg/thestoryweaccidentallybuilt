@@ -1,26 +1,96 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Background & surface */
+  --color-bg: #f4ede0;
+  --color-bg-warm: #ece4d4;
+  --color-card: #fdfaf3;
+  --color-card-warm: #f8f2e4;
+
+  /* Text */
+  --color-ink: #2c1f14;
+  --color-ink-soft: #4a3828;
+  --color-muted: #9a8878;
+
+  /* Accents — warm, not luxury */
+  --color-terracotta: #c47850;
+  --color-sage: #7a9e8a;
+  --color-dusty-blue: #8aacbe;
+  --color-warm-yellow: #e8c84a;
+
+  /* Borders & dividers */
+  --color-border: #d8c8b0;
+  --color-border-soft: #e8dcc8;
+
+  /* Tape / sticker colors */
+  --color-tape-yellow: #f0d878;
+  --color-tape-sage: #b8d4c4;
+  --color-tape-pink: #f0c4c4;
+
+  /* Utility */
+  --color-error: #c87070;
+
+  /* Fonts */
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
+  --font-reading: var(--font-crimson), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-handwrite: var(--font-caveat), cursive;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f4ede0;
+  color: #2c1f14;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba(196, 120, 80, 0.2);
+  color: #2c1f14;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #f4ede0 inset;
+  -webkit-text-fill-color: #2c1f14;
+  caret-color: #2c1f14;
+}
+
+/* Soft scrapbook scrollbar for the story pages. The thumb colour is set
+   per chapter via the --scroll-thumb variable (warm by default, moonlit
+   on the night chapter, warm tan on the day chapter). */
+.story-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb, #d8c8b0) transparent;
+}
+.story-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+.story-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.story-scroll::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb, #d8c8b0);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.story-scroll::-webkit-scrollbar-thumb:hover {
+  filter: brightness(0.93);
 }

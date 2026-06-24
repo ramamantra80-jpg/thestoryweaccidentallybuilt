@@ -1,31 +1,45 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
-const PASSWORD = process.env.NEXT_PUBLIC_STORY_PASSWORD ?? "27032026";
-
-export default function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
+export default function PasswordGate() {
+  const router = useRouter();
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
   const [shakeKey, setShakeKey] = useState(0);
   const [attempts, setAttempts] = useState(0);
+  const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // after a few misses, the error nudges toward the actual hint
   const errorMessage =
-    attempts >= 3 ? "check the first time we chatted on IG" : "nope, try again :)";
+    attempts >= 3 ? "check the first time we chatted on IG 👀" : "nope, try again :)";
 
-  const attempt = () => {
-    if (value === PASSWORD) {
-      onUnlock();
-    } else {
-      setError(true);
-      setAttempts((a) => a + 1);
-      setShakeKey((k) => k + 1);
-      setValue("");
-      setTimeout(() => inputRef.current?.focus(), 50);
+  const attempt = async () => {
+    if (busy || !value) return;
+    setBusy(true);
+    try {
+      const res = await fetch("/api/unlock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: value }),
+      });
+      if (res.ok) {
+        // server set the cookie — re-render the page (now the story shows)
+        router.refresh();
+        return;
+      }
+    } catch {
+      // network hiccup → fall through to the error state
     }
+    setError(true);
+    setAttempts((a) => a + 1);
+    setShakeKey((k) => k + 1);
+    setValue("");
+    setBusy(false);
+    setTimeout(() => inputRef.current?.focus(), 50);
   };
 
   return (
@@ -92,7 +106,8 @@ export default function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
         {/* Button */}
         <button
           onClick={attempt}
-          className="w-full bg-ink text-card font-sans text-sm font-medium py-3 rounded-xl tracking-wide hover:bg-ink-soft active:scale-[0.98] transition-all duration-150"
+          disabled={busy}
+          className="w-full bg-ink text-card font-sans text-sm font-medium py-3 rounded-xl tracking-wide hover:bg-ink-soft active:scale-[0.98] transition-all duration-150 disabled:opacity-60"
         >
           let me in →
         </button>

@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import PasswordGate from "./PasswordGate";
 import PageTransition from "./PageTransition";
 import NightSky from "./story/NightSky";
 import DaySky from "./story/DaySky";
@@ -92,7 +91,6 @@ const SCENES: SceneDef[] = [
 ];
 
 export default function StoryShell() {
-  const [unlocked, setUnlocked] = useState(false);
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
 
@@ -111,14 +109,13 @@ export default function StoryShell() {
   }, [index]);
 
   useEffect(() => {
-    if (!unlocked) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") goNext();
       else if (e.key === "ArrowLeft") goPrev();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [unlocked, goNext, goPrev]);
+  }, [goNext, goPrev]);
 
   // each page starts scrolled to the top
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -169,24 +166,12 @@ export default function StoryShell() {
 
   return (
     <div className="relative w-full h-full overflow-hidden bg-bg">
-      <AnimatePresence mode="wait">
-        {!unlocked ? (
-          <motion.div
-            key="gate"
-            className="absolute inset-0"
-            exit={{ opacity: 0, scale: 1.02 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <PasswordGate onUnlock={() => setUnlocked(true)} />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="story"
-            className="absolute inset-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
+      <motion.div
+        className="absolute inset-0"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
             <div className="relative w-full h-full group">
               {/* one shared backdrop per chapter, fixed behind the scroll so the
                   sky stays put while the card scrolls. keying by backdrop type
@@ -263,9 +248,7 @@ export default function StoryShell() {
                 ))}
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </motion.div>
     </div>
   );
 }

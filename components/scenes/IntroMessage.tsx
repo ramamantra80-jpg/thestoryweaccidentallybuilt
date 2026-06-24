@@ -15,7 +15,7 @@ const paragraphs = [
     style: "body",
   },
   { id: "p3", text: "So yeah, I made one.", style: "body" },
-  { id: "signoff", text: "Enjoy", style: "signoff" },
+  { id: "signoff", text: "enjoy", style: "signoff" },
 ];
 
 export default function IntroMessage() {

@@ -36,6 +36,11 @@ export const metadata: Metadata = {
   title: "The Story We Accidentally Built",
   description: "A private archive.",
   robots: { index: false, follow: false },
+  icons: {
+    icon: "/thestoryweaccidentallybuilt.png",
+    shortcut: "/thestoryweaccidentallybuilt.png",
+    apple: "/thestoryweaccidentallybuilt.png",
+  },
 };
 
 export default function RootLayout({

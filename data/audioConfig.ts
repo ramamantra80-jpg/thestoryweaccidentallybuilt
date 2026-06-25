@@ -3,7 +3,7 @@
 //
 //  1. drop your audio file at:  public/audio/story-soundtrack.mp3
 //     (or change `src` below to point wherever you put it)
-//  2. tweak the volumes / copy here — nothing else to touch.
+//  2. tweak the per-chapter volumes / copy here — nothing else to touch.
 //
 //  volumes are 0–1. they're intentionally low; this is a background
 //  memory, not a concert.
@@ -16,16 +16,27 @@ export const storyAudioConfig = {
   src: "/audio/story-soundtrack.mp3",
   loop: true,
 
-  /** volume through chapters 1–4 */
-  baseVolume: 0.13,
-  /** slightly warmer through chapter 5 (the graduation arc) */
-  chapterFiveVolume: 0.24,
+  // ── per-chapter background volume (each one is independent) ──
+  //    nudge any single number to make that chapter louder / softer.
+  volumes: {
+    opening: 0.12, // intro · cover · tutorial · music screen
+    chapter1: 0.13, // the stranger (clear sky)
+    chapter2: 0.15, // the school saga (warm day)
+    chapter3: 0.08, // the grind arc (night) — quieter, moodier
+    chapter4: 0.16, // the chaos (cloudy day) — a touch more present
+    chapter5: 0.24, // the graduation arc — warmer / stronger
+    // chapter 6 fades from chapter5's level down to silence (see below)
+  },
 
   /** chapter 6 fades the music out and reaches silence on this line */
   fadeToZeroLine: "the story was real.",
 
-  /** how long (ms) the volume eases between levels when you change pages */
-  rampMs: 1400,
+  /**
+   * how long (ms) the volume glides between levels. higher = smoother,
+   * slower cross-fades between chapters. (uses Web Audio when available
+   * for a click-free, Spotify-style ramp.)
+   */
+  rampMs: 2600,
 
   // ── copy on the music-choice screen (shown right after the tutorial) ──
   choiceTitle: "This story was designed with a soundtrack.",

@@ -17,12 +17,14 @@ export async function POST(request: Request) {
   }
 
   const jar = await cookies();
+  // SESSION cookie on purpose — no maxAge/expires. it's gone when the browser
+  // session ends, so coming back to the site always asks for the password
+  // again (no long-term "remember me", regardless of device or IP).
   jar.set(AUTH_COOKIE, AUTH_TOKEN, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 365, // a year
   });
 
   return Response.json({ ok: true });

@@ -70,7 +70,7 @@ export const chapterTwo: Chapter = {
         "until i found out she had exams next month.",
         "like bruv, the last time i had exams was last year XD",
       ],
-      caption: "bad timing, good book.",
+      caption: "the start of the serious arc 😂",
       stickyNote: "made me realize how lucky i am to not have one",
       stickyColor: "blue",
       stickySide: "left",
@@ -98,7 +98,7 @@ export const chapterTwo: Chapter = {
         "but the chairs were apparently built like a brick.",
         "while me? last time i went field trip, all i remember was touching an elephant's trunk... -_-",
       ],
-      caption: "10/10 bus ride. 2/10 chairs.",
+      caption: "L event",
       stickyNote: "the event was there. the memories were on the bus.",
       stickyColor: "sage",
       stickySide: "right",
@@ -126,7 +126,7 @@ export const chapterTwo: Chapter = {
         "that was probably the moment i realized IB wasn't just school ",
         "it was serious like fr it is serious😂 ",
       ],
-      caption: "before this, stress was a word. after this, it becomes serious😂 ",
+      caption: "before this, it was sunshine & rainbows. after this, it becomes serious😂 ",
       stickyNote: "as if exams weren't enough, IB added another thing",
       stickyColor: "pink",
       stickySide: "right",
@@ -170,7 +170,7 @@ export const chapterThree: Chapter = {
         "more like too much to study, too little time, and somehow still procrastinating.",
       ],
       caption: "stress level: serious",
-      stickyNote: "how much [serious] i've been putting in this 🤣 ",
+      stickyNote: "how much 'serious' i've been putting in this 🤣 ",
       stickyColor: "pink",
       stickySide: "right",
       bubbles: [
@@ -189,7 +189,7 @@ export const chapterThree: Chapter = {
       title: "Two Different Grinds",
       eyebrow: "same exhaustion, different enemies",
       body: [
-        "while she was fighting exams, i was fighting bugs in the AI thing.",
+        "while she was fighting exams, i was fighting bugs in my AI.",
         "different battlefield.",
         "both high cortisol.",
       ],
@@ -201,14 +201,14 @@ export const chapterThree: Chapter = {
         meTitle: "me",
         herTitle: "her",
         // my side
-        ai: "AI thing",
+        ai: "AI",
         bugs: "bugs",
         broken: "why is this broken",
         // her side
         ib: "IB",
         exams: "exams",
         essays: "essays",
-        sleep: "no sleep",
+        sleep: "push through",
       },
     },
 
@@ -285,7 +285,7 @@ export const chapterFour: Chapter = {
       body: [
         "then she posted something abt school",
         "i asked if she was sleeping there. she said yes.",
-        "so for a moment, i genuinely believed there was a whole school sleepover situation happening.",
+        "so for a moment, i genuinely believed there was a whole school sleepover situation going on.",
         "turns out… it was just yearbook pics.",
       ],
       caption: "stema not gud",
@@ -317,7 +317,7 @@ export const chapterFour: Chapter = {
         "somewhere here, i realized she wasn't just quiet and serious",
         "she was actually one of the most unpredictable people i know.",
       ],
-      caption: "0% logic, 100% vibes",
+      caption: "be assured thou shalt triumph...",
       stickyNote: "peak times",
       stickyColor: "sage",
       stickySide: "right",
@@ -341,7 +341,7 @@ export const chapterFive: Chapter = {
     chapterLabel: "chapter five",
     title: "The Graduation Arc",
     subtitle: "where the online person became real",
-    caption: "after all the chaos, graduation arrived.",
+    caption: "after all the chaos, the good ending arrived.",
   },
 
   pages: [
@@ -395,7 +395,7 @@ export const chapterFive: Chapter = {
       id: "5c",
       label: "5C",
       tint: "pink",
-      title: "Despite Our Distances",
+      title: "The Phrase",
       eyebrow: "the line that somehow escaped my mouth",
       body: [
         "after the photo, i asked for your number.",
@@ -407,7 +407,7 @@ export const chapterFive: Chapter = {
       stickyColor: "pink",
       stickySide: "right",
       speech: {
-        line: "i want to keep talking despite our distances later on",
+        line: "i want to keep talking with you despite our distances later on",
       },
       labels: {
         me: "me",
@@ -425,7 +425,7 @@ export const chapterFive: Chapter = {
       body: [
         "then the next thing appeared.",
         "Australia. July 10.",
-        "not exactly a small update.",
+        "not exactly a small thing.",
         "you said it felt scary, bittersweet but mostly scary.",
         "which makes sense. new country. new chapter. new everything.",
         "but yeah, i just know u'll pass through it like what u did to the exams",

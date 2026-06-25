@@ -108,17 +108,31 @@ const FADE_ZERO_OFFSET = (() => {
   return si >= 0 ? si + 1 : chapterSix.sections.length; // +1 for the title screen
 })();
 
-/** the target background volume for a given scene index */
+/** the target background volume for a given scene index (per chapter) */
 function volumeForIndex(i: number): number {
+  const v = storyAudioConfig.volumes;
   const bd = SCENES[i]?.backdrop;
-  if (bd === "golden") return storyAudioConfig.chapterFiveVolume; // chapter 5
-  if (bd === "blank") {
-    // chapter 6 — ease down to silence by the "story was real" line
-    if (FADE_ZERO_OFFSET <= 0) return 0;
-    const p = i - BLANK_START;
-    return storyAudioConfig.baseVolume * Math.max(0, 1 - p / FADE_ZERO_OFFSET);
+  switch (bd) {
+    case "clear":
+      return v.chapter1;
+    case "school":
+      return v.chapter2;
+    case "night":
+      return v.chapter3;
+    case "day":
+      return v.chapter4;
+    case "golden":
+      return v.chapter5;
+    case "blank": {
+      // chapter 6 — ease from chapter five's level down to silence by the
+      // "the story was real." line, then stay silent
+      if (FADE_ZERO_OFFSET <= 0) return 0;
+      const p = i - BLANK_START;
+      return v.chapter5 * Math.max(0, 1 - p / FADE_ZERO_OFFSET);
+    }
+    default:
+      return v.opening; // intro / cover / tutorial / music screen
   }
-  return storyAudioConfig.baseVolume; // chapters 1–4 (and everything else)
 }
 
 // the music-choice screen's position, so we can auto-skip it once chosen
@@ -195,23 +209,85 @@ export default function StoryShell() {
     [goPrev, goNext]
   );
 
-  // ── soundtrack ─────────────────────────────────────────────
+  // ── soundtrack (Web Audio → click-free, Spotify-style fades) ──
   const audioRef = useRef<HTMLAudioElement>(null);
-  const rampRef = useRef<number | null>(null);
+  const ctxRef = useRef<AudioContext | null>(null);
+  const gainRef = useRef<GainNode | null>(null);
+  const builtRef = useRef(false);
+  const fallbackRampRef = useRef<number | null>(null);
+  const pauseTimerRef = useRef<number | null>(null);
   const [audioChoice, setAudioChoice] = useState<"music" | "silent" | null>(
     null
   );
   const [muted, setMuted] = useState(false);
 
+  // build the Web Audio graph once (audio → gain → speakers)
+  const ensureGraph = useCallback(() => {
+    if (builtRef.current) return;
+    const a = audioRef.current;
+    if (!a) return;
+    try {
+      const Ctor =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext?: typeof AudioContext })
+          .webkitAudioContext;
+      if (!Ctor) return; // no Web Audio → fall back to element.volume
+      const ctx = new Ctor();
+      const source = ctx.createMediaElementSource(a);
+      const gain = ctx.createGain();
+      gain.gain.value = 0;
+      source.connect(gain).connect(ctx.destination);
+      ctxRef.current = ctx;
+      gainRef.current = gain;
+      a.volume = 1; // from here, volume is controlled by the gain node
+      builtRef.current = true;
+    } catch {
+      // leave builtRef false → smootherstep fallback on a.volume
+    }
+  }, []);
+
+  // glide to a target volume — sample-accurate via Web Audio, eased fallback
+  const rampTo = useCallback((target: number, ms: number) => {
+    const ctx = ctxRef.current;
+    const gain = gainRef.current;
+    const clamped = Math.max(0, Math.min(1, target));
+    if (ctx && gain) {
+      const now = ctx.currentTime;
+      const g = gain.gain;
+      g.cancelScheduledValues(now);
+      g.setValueAtTime(g.value, now);
+      g.linearRampToValueAtTime(clamped, now + Math.max(0.05, ms / 1000));
+      return;
+    }
+    const a = audioRef.current;
+    if (!a) return;
+    if (fallbackRampRef.current) window.clearInterval(fallbackRampRef.current);
+    const from = a.volume;
+    const steps = Math.max(1, Math.round(ms / 40));
+    let step = 0;
+    fallbackRampRef.current = window.setInterval(() => {
+      step += 1;
+      const t = Math.min(1, step / steps);
+      const eased = t * t * (3 - 2 * t); // smootherstep — no zipper
+      a.volume = Math.max(0, Math.min(1, from + (clamped - from) * eased));
+      if (t >= 1 && fallbackRampRef.current) {
+        window.clearInterval(fallbackRampRef.current);
+        fallbackRampRef.current = null;
+      }
+    }, 40);
+  }, []);
+
   const chooseMusic = useCallback(() => {
     setAudioChoice("music");
     lsSet(AUDIO_STORAGE.choice, "music");
+    ensureGraph();
+    ctxRef.current?.resume().catch(() => {});
     const a = audioRef.current;
     if (a) {
-      a.volume = 0;
+      if (!builtRef.current) a.volume = 0; // fallback path starts silent
       a.play().catch(() => {}); // inside a click → autoplay is allowed
     }
-  }, []);
+  }, [ensureGraph]);
   const chooseSilent = useCallback(() => {
     setAudioChoice("silent");
     lsSet(AUDIO_STORAGE.choice, "silent");
@@ -228,8 +304,9 @@ export default function StoryShell() {
   useEffect(() => {
     const c = lsGet(AUDIO_STORAGE.choice);
     if (c === "music" || c === "silent") setAudioChoice(c);
+    if (c === "music") ensureGraph(); // first gesture will resume + play it
     if (lsGet(AUDIO_STORAGE.muted) === "1") setMuted(true);
-  }, []);
+  }, [ensureGraph]);
 
   // once a choice is remembered, glide past the music screen (in whatever
   // direction the reader is moving) instead of asking again
@@ -247,28 +324,41 @@ export default function StoryShell() {
     if (!a || audioChoice !== "music") return;
     const base = volumeForIndex(index);
     const target = muted ? 0 : base;
-    if (base > 0.0005 && a.paused) a.play().catch(() => {});
 
-    if (rampRef.current) window.clearInterval(rampRef.current);
-    const from = a.volume;
-    const steps = Math.max(1, Math.round(storyAudioConfig.rampMs / 50));
-    let step = 0;
-    rampRef.current = window.setInterval(() => {
-      step += 1;
-      const t = Math.min(1, step / steps);
-      a.volume = Math.max(0, Math.min(1, from + (target - from) * t));
-      if (t >= 1) {
-        if (rampRef.current) window.clearInterval(rampRef.current);
-        rampRef.current = null;
-        if (base <= 0.0005) a.pause(); // chapter 6 silence → stop the audio
-      }
-    }, 50);
+    if (pauseTimerRef.current) {
+      window.clearTimeout(pauseTimerRef.current);
+      pauseTimerRef.current = null;
+    }
+    if (base > 0.0005 && a.paused) {
+      ctxRef.current?.resume().catch(() => {});
+      a.play().catch(() => {});
+    }
+
+    rampTo(target, storyAudioConfig.rampMs);
+
+    // chapter 6 silence → pause once the fade has fully finished
+    if (base <= 0.0005) {
+      pauseTimerRef.current = window.setTimeout(() => {
+        audioRef.current?.pause();
+      }, storyAudioConfig.rampMs + 200);
+    }
 
     return () => {
-      if (rampRef.current) window.clearInterval(rampRef.current);
-      rampRef.current = null;
+      if (pauseTimerRef.current) {
+        window.clearTimeout(pauseTimerRef.current);
+        pauseTimerRef.current = null;
+      }
     };
-  }, [index, audioChoice, muted]);
+  }, [index, audioChoice, muted, rampTo]);
+
+  // tidy up on unmount
+  useEffect(() => {
+    return () => {
+      if (fallbackRampRef.current) window.clearInterval(fallbackRampRef.current);
+      if (pauseTimerRef.current) window.clearTimeout(pauseTimerRef.current);
+      ctxRef.current?.close().catch(() => {});
+    };
+  }, []);
 
   const audioValue = useMemo<StoryAudio>(
     () => ({

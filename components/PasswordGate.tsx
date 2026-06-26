@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { track } from "@vercel/analytics";
 
 export default function PasswordGate() {
   const router = useRouter();
@@ -12,6 +13,11 @@ export default function PasswordGate() {
   const [attempts, setAttempts] = useState(0);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // analytics: someone reached the gate
+  useEffect(() => {
+    track("Password gate");
+  }, []);
 
   // after a few misses, the error nudges toward the actual hint
   const errorMessage =
@@ -27,6 +33,7 @@ export default function PasswordGate() {
         body: JSON.stringify({ password: value }),
       });
       if (res.ok) {
+        track("Unlocked");
         // server set the cookie — re-render the page (now the story shows)
         router.refresh();
         return;

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { track } from "@vercel/analytics";
 import PageTransition from "./PageTransition";
 import { AudioCtx, AUDIO_STORAGE, type StoryAudio } from "./audio/AudioContext";
 import MusicChoiceScreen from "./audio/MusicChoiceScreen";
@@ -48,51 +49,54 @@ type Backdrop = "clear" | "school" | "night" | "day" | "golden" | "blank";
 interface SceneDef {
   C: ComponentType;
   backdrop?: Backdrop;
+  /** label sent to analytics so you can see how far each reader got */
+  name: string;
 }
 
 const SCENES: SceneDef[] = [
   // —— opening flow ——
-  { C: IntroMessage },
-  { C: CoverScene },
-  { C: TutorialScene },
+  { C: IntroMessage, name: "Intro" },
+  { C: CoverScene, name: "Cover" },
+  { C: TutorialScene, name: "Tutorial" },
   // —— the soundtrack invitation ——
-  { C: MusicChoiceScreen },
+  { C: MusicChoiceScreen, name: "Music choice" },
   // —— chapter one: the stranger (clear light-blue sky) ——
-  { C: ChapterOneCover, backdrop: "clear" },
-  { C: Scene1A, backdrop: "clear" },
-  { C: Scene1B, backdrop: "clear" },
-  { C: Scene1C, backdrop: "clear" },
+  { C: ChapterOneCover, backdrop: "clear", name: "Ch1 cover" },
+  { C: Scene1A, backdrop: "clear", name: "Ch1A" },
+  { C: Scene1B, backdrop: "clear", name: "Ch1B" },
+  { C: Scene1C, backdrop: "clear", name: "Ch1C" },
   // —— chapter two: the school saga (warm daylight) ——
-  { C: ChapterTwoCover, backdrop: "school" },
-  { C: Scene2A, backdrop: "school" },
-  { C: Scene2B, backdrop: "school" },
-  { C: Scene2C, backdrop: "school" },
+  { C: ChapterTwoCover, backdrop: "school", name: "Ch2 cover" },
+  { C: Scene2A, backdrop: "school", name: "Ch2A" },
+  { C: Scene2B, backdrop: "school", name: "Ch2B" },
+  { C: Scene2C, backdrop: "school", name: "Ch2C" },
   // —— chapter three: the grind arc (night) ——
-  { C: ChapterThreeCover, backdrop: "night" },
-  { C: Scene3A, backdrop: "night" },
-  { C: Scene3B, backdrop: "night" },
-  { C: Scene3C, backdrop: "night" },
+  { C: ChapterThreeCover, backdrop: "night", name: "Ch3 cover" },
+  { C: Scene3A, backdrop: "night", name: "Ch3A" },
+  { C: Scene3B, backdrop: "night", name: "Ch3B" },
+  { C: Scene3C, backdrop: "night", name: "Ch3C" },
   // —— chapter four: the chaos continues (day) ——
-  { C: ChapterFourCover, backdrop: "day" },
-  { C: Scene4A, backdrop: "day" },
-  { C: Scene4B, backdrop: "day" },
-  { C: Scene4C, backdrop: "day" },
+  { C: ChapterFourCover, backdrop: "day", name: "Ch4 cover" },
+  { C: Scene4A, backdrop: "day", name: "Ch4A" },
+  { C: Scene4B, backdrop: "day", name: "Ch4B" },
+  { C: Scene4C, backdrop: "day", name: "Ch4C" },
   // —— transition: internet chaos fades, real life arrives ——
-  { C: InterstitialGraduation, backdrop: "golden" },
+  { C: InterstitialGraduation, backdrop: "golden", name: "Ch5 intro" },
   // —— chapter five: the graduation arc (golden hour) ——
-  { C: ChapterFiveCover, backdrop: "golden" },
-  { C: Scene5A, backdrop: "golden" },
-  { C: Scene5B, backdrop: "golden" },
-  { C: Scene5C, backdrop: "golden" },
+  { C: ChapterFiveCover, backdrop: "golden", name: "Ch5 cover" },
+  { C: Scene5A, backdrop: "golden", name: "Ch5A" },
+  { C: Scene5B, backdrop: "golden", name: "Ch5B" },
+  { C: Scene5C, backdrop: "golden", name: "Ch5C" },
   // —— transition: the paper-plane hop to Australia ——
-  { C: PaperPlaneInterstitial, backdrop: "golden" },
-  { C: Scene5D, backdrop: "golden" },
+  { C: PaperPlaneInterstitial, backdrop: "golden", name: "Ch5 plane" },
+  { C: Scene5D, backdrop: "golden", name: "Ch5D" },
   // —— chapter six: the blank canvas (golden hour fades to a white page) ——
   //    title screen, then one screen per entry in chapterSix.sections
-  { C: ChapterSixTitle, backdrop: "blank" },
+  { C: ChapterSixTitle, backdrop: "blank", name: "Ch6 title" },
   ...chapterSix.sections.map((_, i) => ({
     C: makeSection(i, i === chapterSix.sections.length - 1),
     backdrop: "blank" as Backdrop,
+    name: `Ch6 line ${i + 1}`,
   })),
 ];
 
@@ -184,6 +188,12 @@ export default function StoryShell() {
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 0 });
+  }, [index]);
+
+  // analytics: log which part the reader is on. each part is its own event so
+  // the dashboard reads like a funnel — Ch1 high, later chapters lower
+  useEffect(() => {
+    track(SCENES[index].name);
   }, [index]);
 
   // the finale's "read again" link returns to the very beginning

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { track } from "@vercel/analytics";
+import { pageview } from "@/lib/analytics";
 
 export default function PasswordGate() {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function PasswordGate() {
 
   // analytics: someone reached the gate
   useEffect(() => {
-    track("Password gate");
+    pageview("/password");
   }, []);
 
   // after a few misses, the error nudges toward the actual hint
@@ -33,7 +33,7 @@ export default function PasswordGate() {
         body: JSON.stringify({ password: value }),
       });
       if (res.ok) {
-        track("Unlocked");
+        pageview("/unlocked");
         // server set the cookie — re-render the page (now the story shows)
         router.refresh();
         return;

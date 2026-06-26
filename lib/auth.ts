@@ -11,9 +11,10 @@ const PASSWORD = (process.env.STORY_PASSWORD ?? "").trim();
 /** name of the auth cookie the browser carries once unlocked */
 export const AUTH_COOKIE = "sw_auth";
 
-/** the opaque value we store in the cookie when the password checks out */
+/** the opaque value we store in the cookie when the password checks out.
+ *  bump the version tag to invalidate every existing cookie at once. */
 export const AUTH_TOKEN = createHash("sha256")
-  .update(`${PASSWORD}::the-story-we-accidentally-built`)
+  .update(`${PASSWORD}::v2::the-story-we-accidentally-built`)
   .digest("hex");
 
 /** true only when a non-empty password is configured and matches exactly */

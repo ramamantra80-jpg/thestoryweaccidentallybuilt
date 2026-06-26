@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { track } from "@vercel/analytics";
+import { pageview, partPath } from "@/lib/analytics";
 import PageTransition from "./PageTransition";
 import { AudioCtx, AUDIO_STORAGE, type StoryAudio } from "./audio/AudioContext";
 import MusicChoiceScreen from "./audio/MusicChoiceScreen";
@@ -190,11 +190,18 @@ export default function StoryShell() {
     scrollRef.current?.scrollTo({ top: 0 });
   }, [index]);
 
-  // analytics: log which part the reader is on. each part is its own event so
-  // the dashboard reads like a funnel — Ch1 high, later chapters lower
+  // analytics: record a virtual page view per part, so the Pages view reads
+  // like a funnel — Ch1 high, later chapters lower
   useEffect(() => {
-    track(SCENES[index].name);
+    pageview(partPath(SCENES[index].name));
   }, [index]);
+
+  // the gate should reappear on every fresh load — once the story is showing,
+  // drop the auth cookie. reading is all client-side, so no further server
+  // auth check happens until the next full reload (which now re-asks).
+  useEffect(() => {
+    fetch("/api/lock", { method: "POST" }).catch(() => {});
+  }, []);
 
   // the finale's "read again" link returns to the very beginning
   useEffect(() => {

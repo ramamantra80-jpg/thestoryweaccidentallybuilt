@@ -17,10 +17,12 @@ export default function Scene5C() {
       bare
       visual={
         <div className="flex flex-col items-center gap-4 w-full">
-          {/* the line that escaped */}
-          <SpeechBubble color="pink" className="text-sm max-w-[280px]">
-            {page.speech?.line}
-          </SpeechBubble>
+          {/* the line that escaped — from me, so it leans to the left */}
+          <div className="w-full flex justify-start">
+            <SpeechBubble color="blue" className="text-sm max-w-[250px] ml-1 sm:ml-6">
+              {page.speech?.line}
+            </SpeechBubble>
+          </div>
 
           {/* numbers exchanged — two phones, no hearts */}
           <div className="flex items-end justify-center gap-10">

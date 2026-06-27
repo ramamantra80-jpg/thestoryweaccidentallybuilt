@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Stickman from "../story/Stickman";
 import { chapterSix } from "@/data/storyContent";
+import { pageview } from "@/lib/analytics";
 
 // pure black on a pure white page — a blank canvas, one quiet screen at a time
 const INK = "#111111";
@@ -90,6 +91,7 @@ function BlankScreen({
           <motion.button
             onClick={(e) => {
               e.stopPropagation(); // don't let the tap also flip a page
+              pageview("/read-again"); // analytics: someone chose to replay
               window.dispatchEvent(new CustomEvent("story:restart"));
             }}
             className="mt-12 font-sans text-sm text-neutral-400 hover:text-neutral-700 underline underline-offset-4 transition-colors"

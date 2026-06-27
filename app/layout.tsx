@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Playfair_Display, Crimson_Text, Caveat } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 const geist = Geist({
@@ -57,6 +58,7 @@ export default function RootLayout({
       <body className="h-full overflow-hidden">
         {children}
         <Analytics />
+        <GoogleAnalytics />
       </body>
     </html>
   );

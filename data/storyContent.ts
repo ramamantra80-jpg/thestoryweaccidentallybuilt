@@ -288,7 +288,7 @@ export const chapterFour: Chapter = {
         "so for a moment, i genuinely believed there was a whole school sleepover situation going on.",
         "turns out… it was just yearbook pics.",
       ],
-      caption: "stema not gud",
+      caption: "stema not cool 👎",
       stickyNote: "funny when u gave me the sonion reply, i thought it meant soon before 🤣",
       stickyColor: "blue",
       stickySide: "left",
@@ -482,7 +482,7 @@ export const chapterSix: FinalChapter = {
     // screen 2
     [
       "maybe we stay close.",
-      "maybe we drift apart.",
+      "maybe life gets busy.",
       "maybe we end up together.",
       "maybe this is the final chapter.",
     ],

@@ -485,17 +485,19 @@ export const chapterSix: FinalChapter = {
       "and ours did too",
     ],
     // screen 3
-    ["but one thing never change."],
+    ["but one thing never changed."],
     // screen 4
-    ["the story was real.",
+    ["the story was real."],
+    // screen 5
+    [
       "every laugh.",
       "every conversation.",
       "every little moment.",
       "and i'm grateful",
       "it happened",
     ],
-    // screen 5 (closes with the two stick figures)
-    ["thank you", " for reading this story with me.","and thank you", "for being part it", "this chapter may be over", "but i'm glad", "it existed."],
+    // screen 6 (closes with the two stick figures)
+    ["thank you", " for reading this story with me.","and thank you", "for being part of it", "this chapter may be over", "but i'm glad", "it existed."],
   ],
   replayLabel: "read again",
 

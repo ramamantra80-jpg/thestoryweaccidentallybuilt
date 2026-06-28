@@ -472,26 +472,30 @@ export interface FinalTiming {
 
 export const chapterSix: FinalChapter = {
   chapterLabel: "chapter VI",
-  title: "The Blank Canvas",
-  subtitle: "the part we don't know yet",
+  title: "The Last Page",
+  subtitle: "the part we now know",
   // each array below is one screen, in order. add / remove / split freely —
   // the last screen automatically closes with the two stick figures.
   sections: [
     // screen 1
-    ["this is the future.", "we don't know what will happen"],
+    ["this was the future.", "now we know how the story ends"],
     // screen 2
     [
-      "maybe we stay close.",
-      "maybe life gets busy.",
-      "maybe we end up together.",
-      "maybe this is the final chapter.",
+      "every story eventually reaches its ending",
+      "and ours did too",
     ],
     // screen 3
-    ["but one thing was true."],
+    ["but one thing never change."],
     // screen 4
-    ["the story was real."],
+    ["the story was real.",
+      "every laugh.",
+      "every conversation.",
+      "every little moment.",
+      "and i'm grateful",
+      "it happened",
+    ],
     // screen 5 (closes with the two stick figures)
-    ["thanks for reading this chapter with me.","and thank you for being part of the story.", "hope it made you smile"],
+    ["thank you", " for reading this story with me.","and thank you", "for being part it", "this chapter may be over", "but i'm glad", "it existed."],
   ],
   replayLabel: "read again",
 

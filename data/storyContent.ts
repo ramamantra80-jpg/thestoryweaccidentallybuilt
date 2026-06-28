@@ -493,7 +493,7 @@ export const chapterSix: FinalChapter = {
       "every laugh.",
       "every conversation.",
       "every little moment.",
-      "and i'm grateful",
+      "i'm grateful",
       "it happened",
     ],
     // screen 6 (closes with the two stick figures)
